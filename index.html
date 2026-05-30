@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zach & Mia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080709;
+  --bg2:      #0f0d12;
+  --bg3:      #151219;
+  --bg4:      #1c1822;
+  --border:   rgba(255,255,255,0.055);
+  --border2:  rgba(255,255,255,0.11);
+  --text:     #ede8e3;
+  --text2:    #8a8280;
+  --text3:    #4a4648;
+  --rose:     #c47a8a;
+  --rose2:    #e8b4c0;
+  --rose-dim: rgba(196,122,138,0.15);
+  --rose-glow:rgba(196,122,138,0.08);
+  --gold:     #b8955a;
+  --gold-dim: rgba(184,149,90,0.13);
+  --radius:   14px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Lora', serif;
+  font-weight: 400;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Noise grain overlay ── */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:0.4;
+}
+
+/* ── Ambient orbs ── */
+.orb {
+  position:fixed;border-radius:50%;
+  filter:blur(80px);pointer-events:none;z-index:0;
+}
+.orb-1{width:400px;height:400px;background:radial-gradient(circle,rgba(196,122,138,0.07),transparent 70%);top:-100px;left:-100px;}
+.orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(184,149,90,0.04),transparent 70%);bottom:-150px;right:-150px;}
+.orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(196,122,138,0.05),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);}
+
+/* ── Canvas stars ── */
+#starfield{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.6;}
+
+.wrap{max-width:860px;margin:0 auto;padding:40px 20px 100px;position:relative;z-index:1;}
+
+/* ── Header ── */
+.header{text-align:center;padding:70px 0 52px;position:relative;}
+.header-eyebrow{
+  font-family:'Lora',serif;font-size:11px;letter-spacing:0.35em;
+  text-transform:uppercase;color:var(--text3);margin-bottom:20px;
+}
+.header-names{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,9vw,88px);
+  font-weight:300;font-style:italic;
+  letter-spacing:0.03em;line-height:0.9;
+  color:var(--text);
+}
+.header-names .amp{color:var(--rose);font-style:normal;}
+.header-rule{
+  display:flex;align-items:center;gap:12px;
+  margin:24px auto 0;width:180px;
+}
+.header-rule-line{flex:1;height:0.5px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
+.header-rule-diamond{
+  width:5px;height:5px;background:var(--rose);
+  transform:rotate(45deg);flex-shrink:0;
+}
+
+/* ── Section label ── */
+.section-label{
+  font-family:'Lora',serif;font-size:10px;
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:14px;
+}
+
+/* ── Countdown ── */
+.countdown-wrap{margin-bottom:40px;}
+.countdown-card{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:30px 32px;
+  display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:24px;
+  position:relative;overflow:hidden;
+}
+.countdown-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 0% 50%,var(--rose-glow),transparent 60%);
+  pointer-events:none;
+}
+.countdown-event-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:400;font-style:italic;
+  color:var(--text);line-height:1.2;
+}
+.countdown-event-date{
+  font-size:11px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--rose);margin-top:6px;
+}
+.countdown-event-emojis{font-size:16px;letter-spacing:3px;margin-top:8px;}
+.countdown-units{display:flex;gap:16px;}
+.countdown-unit{text-align:center;}
+.countdown-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:48px;font-weight:300;
+  color:var(--rose2);line-height:1;display:block;
+}
+.countdown-lbl{
+  font-size:9px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text3);display:block;margin-top:5px;
+}
+
+/* ── View toggle ── */
+.view-toggle{
+  display:flex;gap:1px;
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:8px;overflow:hidden;
+  width:fit-content;margin-bottom:28px;
+}
+.view-btn{
+  background:transparent;border:none;
+  padding:9px 20px;font-size:11px;letter-spacing:0.12em;
+  text-transform:uppercase;font-family:'Lora',serif;
+  cursor:pointer;color:var(--text3);transition:all 0.2s;
+}
+.view-btn.active{background:var(--bg4);color:var(--rose);}
+.view-btn:not(:last-child){border-right:0.5px solid var(--border);}
+.notif{
+  display:inline-block;width:6px;height:6px;
+  border-radius:50%;background:var(--rose);
+  margin-left:5px;vertical-align:middle;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ── Panels ── */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── Cards ── */
+.card{
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  transition:border-color 0.2s;
+}
+.card:hover{border-color:var(--border2);}
+.card-full{
+  background:var(--bg2);
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;margin-bottom:14px;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+
+/* ── Inputs ── */
+input[type=text],input[type=url],input[type=number],textarea,select{
+  width:100%;background:var(--bg3);
+  border:0.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px 13px;color:var(--text);
+  font-family:'Lora',serif;font-size:13px;
+  outline:none;transition:border 0.15s;
+}
+input::placeholder,textarea::placeholder{color:var(--text3);}
+input:focus,textarea:focus,select:focus{border-color:var(--rose);}
+textarea{resize:none;}
+select{cursor:pointer;}
+select option{background:var(--bg3);}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:none;border:0.5px solid var(--border2);
+  color:var(--text2);font-family:'Lora',serif;
+  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:9px 16px;border-radius:6px;cursor:pointer;
+  transition:all 0.15s;margin-top:8px;
+}
+.btn:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-dim);}
+.btn-rose{border-color:rgba(196,122,138,0.4);color:var(--rose);}
+.btn-rose:hover{background:var(--rose-dim);}
+.btn-full{width:100%;justify-content:center;}
+
+/* ── Note input area ── */
+.note-input-area{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.note-type-row{display:flex;gap:6px;flex-wrap:wrap;}
+.note-type-chip{
+  padding:5px 11px;border-radius:20px;
+  border:0.5px solid var(--border);background:transparent;
+  font-size:11px;color:var(--text3);cursor:pointer;
+  font-family:'Lora',serif;transition:all 0.15s;letter-spacing:0.04em;
+}
+.note-type-chip.active{border-color:var(--rose);color:var(--rose);background:var(--rose-dim);}
+
+/* ── Present / message cards (Mia's view) ── */
+.presents-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:14px;
+}
+.present-wrap{perspective:800px;}
+.present-btn{
+  width:100%;aspect-ratio:1;
+  background:linear-gradient(145deg,var(--bg3),var(--bg4));
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:all 0.3s;
+  font-family:'Lora',serif;
+}
+.present-btn::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,var(--rose-glow),transparent 70%);
+}
+.present-btn:hover{
+  border-color:rgba(196,122,138,0.3);
+  transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.4);
+}
+.present-btn:hover .present-ribbon{transform:scaleX(1.05);}
+.present-icon{font-size:32px;position:relative;z-index:1;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.present-label{
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text3);position:relative;z-index:1;
+}
+.present-ribbon{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--rose),transparent);
+  transition:transform 0.3s;
+}
+.present-opened{
+  border-color:rgba(196,122,138,0.2);
+  opacity:0.5;
+}
+.present-opened .present-icon{animation:none;}
+.present-opened::after{
+  content:'opened';
+  position:absolute;bottom:8px;
+  font-size:9px;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text3);font-family:'Lora',serif;
+}
+
+/* ── Message reveal modal ── */
+.msg-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,7,9,0.92);z-index:2000;
+  align-items:center;justify-content:center;
+  padding:24px;
+}
+.msg-modal.open{display:flex;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.msg-modal-card{
+  background:linear-gradient(145deg,var(--bg2),var(--bg3));
+  border:0.5px solid var(--border2);
+  border-radius:var(--radius);
+  padding:36px 32px;
+  max-width:480px;width:100%;
+  position:relative;
+  animation:slideUp 0.3s ease;
+  max-height:85vh;overflow-y:auto;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.msg-modal-card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--radius);
+  background:radial-gradient(ellipse at 50% 0%,var(--rose-glow),transparent 60%);
+  pointer-events:none;
+}
+.msg-modal-close{
+  position:absolute;top:14px;right:14px;
+  background:none;border:none;color:var(--text3);
+  font-size:18px;cursor:pointer;padding:4px;
+  border-radius:4px;transition:color 0.15s;
+  font-family:'Lora',serif;
+}
+.msg-modal-close:hover{color:var(--text);}
+.msg-modal-type{
+  font-size:9px;letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--rose);margin-bottom:16px;
+}
+.msg-modal-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;font-style:italic;font-weight:300;
+  line-height:1.75;color:var(--text);
+}
+.msg-modal-time{
+  font-size:10px;letter-spacing:0.1em;color:var(--text3);
+  margin-top:20px;text-transform:uppercase;
+}
+.msg-modal-gif{width:100%;border-radius:8px;margin-top:12px;}
+.msg-modal-music{
+  background:var(--bg4);border:0.5px solid var(--border);
+  border-radius:8px;padding:14px;margin-top:12px;
+  display:flex;align-items:center;gap:12px;
+}
+.msg-modal-music-icon{font-size:24px;flex-shrink:0;}
+.msg-modal-music-info{flex:1;min-width:0;}
+.msg-modal-music-title{font-size:15px;color:var(--text);}
+.msg-modal-music-artist{font-size:12px;color:var(--text3);margin-top:2px;}
+.msg-modal-music-link{
+  font-size:11px;letter-spacing:0.08em;color:var(--rose);
+  text-decoration:none;text-transform:uppercase;
+}
+.msg-modal-music-link:hover{text-decoration:underline;}
+.msg-modal-money-amount{
+  font-family:'Cormorant Garamond',serif;
+  font-size:48px;font-weight:300;color:var(--gold);
+  line-height:1;
+}
+.msg-modal-money-via{font-size:11px;color:var(--text3);margin-top:6px;letter-spacing:0.1em;text-transform:uppercase;}
+
+/* ── Letter template ── */
+.letter-wrap{
+  background:var(--bg4);border:0.5px solid var(--border);
+  border-radius:8px;padding:16px;margin-bottom:8px;
+}
+.letter-salutation{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:15px;color:var(--text2);margin-bottom:10px;
+}
+.letter-sign{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:14px;color:var(--text2);margin-top:10px;
+}
+.template-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.template-chip{
+  padding:5px 10px;border-radius:20px;border:0.5px solid var(--border);
+  font-size:11px;color:var(--text3);cursor:pointer;
+  font-family:'Lora',serif;background:transparent;transition:all 0.15s;
+}
+.template-chip:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+
+/* ── Rotating photo ── */
+.photo-stage{
+  position:relative;border-radius:var(--radius);
+  overflow:hidden;background:var(--bg3);
+  border:0.5px solid var(--border);
+  aspect-ratio:16/9;margin-bottom:10px;
+}
+.photo-stage img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;
+  opacity:0;transition:opacity 1.2s ease;
+}
+.photo-stage img.visible{opacity:1;}
+.photo-stage-empty{
+  aspect-ratio:16/9;border-radius:var(--radius);
+  border:0.5px dashed var(--border2);background:var(--bg3);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;color:var(--text3);
+  font-size:13px;margin-bottom:10px;
+}
+.photo-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.photo-counter{font-size:11px;color:var(--text3);letter-spacing:0.1em;}
+.photo-dots{display:flex;gap:5px;}
+.photo-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--bg4);border:0.5px solid var(--border2);
+  transition:all 0.3s;cursor:pointer;
+}
+.photo-dot.active{background:var(--rose);border-color:var(--rose);}
+.photo-nav-btns{display:flex;gap:6px;}
+.photo-nav-btn{
+  background:var(--bg4);border:0.5px solid var(--border);
+  border-radius:5px;padding:5px 10px;color:var(--text3);
+  cursor:pointer;font-size:13px;transition:all 0.15s;
+}
+.photo-nav-btn:hover{border-color:var(--rose);color:var(--rose);}
+.photo-thumb-row{
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:none;
+}
+.photo-thumb-row::-webkit-scrollbar{display:none;}
+.photo-thumb{
+  flex-shrink:0;width:52px;height:52px;border-radius:6px;
+  object-fit:cover;cursor:pointer;
+  border:1.5px solid transparent;
+  opacity:0.5;transition:all 0.2s;
+}
+.photo-thumb.active{border-color:var(--rose);opacity:1;}
+.photo-input-row{display:flex;gap:8px;margin-top:10px;}
+.photo-input-row input{flex:1;margin:0;}
+.photo-note{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;}
+
+/* ── GIFs ── */
+.gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.gif-item{
+  aspect-ratio:1;border-radius:8px;background:var(--bg3);
+  border:0.5px solid var(--border);overflow:hidden;
+  position:relative;cursor:pointer;
+}
+.gif-item img{width:100%;height:100%;object-fit:cover;}
+.gif-del{
+  position:absolute;top:4px;right:4px;
+  background:rgba(8,7,9,0.85);border:none;cursor:pointer;
+  color:var(--text2);font-size:11px;padding:3px 5px;border-radius:4px;
+  display:none;
+}
+.gif-item:hover .gif-del{display:block;}
+.gif-add{
+  aspect-ratio:1;border-radius:8px;
+  border:0.5px dashed var(--border2);background:var(--bg3);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;cursor:pointer;
+  color:var(--text3);font-size:11px;letter-spacing:0.05em;
+  transition:all 0.15s;
+}
+.gif-add:hover{border-color:var(--rose);color:var(--rose);}
+.gif-input-row{display:flex;gap:8px;margin-top:10px;}
+.gif-input-row input{flex:1;margin:0;}
+
+/* ── Playlist ── */
+.playlist-list{display:flex;flex-direction:column;gap:7px;}
+.playlist-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg3);border:0.5px solid var(--border);
+  border-radius:8px;padding:10px 12px;transition:border-color 0.15s;
+}
+.playlist-item:hover{border-color:var(--border2);}
+.playlist-num{font-size:11px;color:var(--text3);width:16px;text-align:center;}
+.playlist-info{flex:1;min-width:0;}
+.playlist-name{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.playlist-artist{font-size:11px;color:var(--text3);margin-top:2px;}
+.playlist-link{
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--rose);text-decoration:none;flex-shrink:0;
+}
+.playlist-link:hover{text-decoration:underline;}
+.playlist-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;padding:2px 4px;transition:color 0.15s;}
+.playlist-del:hover{color:var(--rose);}
+.music-input-row{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;}
+.music-input-row input{flex:1;min-width:110px;margin:0;}
+
+/* ── Money ── */
+.money-methods{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.money-method{
+  background:var(--bg3);border:0.5px solid var(--border);
+  border-radius:6px;padding:8px 14px;font-size:12px;
+  color:var(--text2);cursor:pointer;transition:all 0.15s;
+  font-family:'Lora',serif;
+}
+.money-method.active,.money-method:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-dim);}
+.money-link{
+  display:inline-block;padding:9px 18px;
+  background:var(--bg3);border:0.5px solid var(--border2);
+  border-radius:6px;color:var(--text2);text-decoration:none;
+  font-size:12px;transition:all 0.15s;font-family:'Lora',serif;
+}
+.money-link:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-dim);}
+
+/* ── Mia's hero ── */
+.mia-hero{
+  text-align:center;padding:44px 24px 36px;
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:0.5px solid var(--border);
+  border-radius:var(--radius);margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.mia-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(196,122,138,0.1),transparent 65%);
+}
+.mia-hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:40px;font-weight:300;font-style:italic;
+  color:var(--text);position:relative;z-index:1;
+}
+.mia-hero-title span{color:var(--rose);}
+.mia-hero-sub{
+  font-size:11px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text3);margin-top:8px;position:relative;z-index:1;
+}
+
+/* ── Mia's playlist ── */
+.mia-playlist-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg3);border:0.5px solid var(--border);
+  border-radius:8px;padding:10px 12px;
+}
+
+/* ── Zach's note list ── */
+.note-item{
+  background:var(--bg3);border:0.5px solid var(--border);
+  border-radius:8px;padding:12px 14px;
+  font-size:13px;line-height:1.7;color:var(--text);position:relative;
+}
+.note-item .note-tag{
+  display:inline-block;font-size:9px;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--rose);margin-bottom:6px;
+}
+.note-item .note-time{font-size:10px;color:var(--text3);margin-top:8px;letter-spacing:0.05em;}
+.note-del{
+  position:absolute;top:10px;right:10px;
+  background:none;border:none;cursor:pointer;
+  color:var(--text3);font-size:13px;padding:2px 4px;
+  border-radius:4px;transition:color 0.15s;
+}
+.note-del:hover{color:var(--rose);}
+.note-list{display:flex;flex-direction:column;gap:8px;}
+.note-empty{font-size:12px;color:var(--text3);padding:4px 0;letter-spacing:0.04em;}
+
+/* ── Sync status ── */
+#sync-status{
+  position:fixed;bottom:16px;right:16px;
+  font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;
+  background:var(--bg2);border:0.5px solid var(--border);
+  border-radius:6px;padding:5px 10px;z-index:100;
+  transition:opacity 0.5s;
+}
+
+/* ── Image lightbox ── */
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,7,9,0.95);z-index:3000;
+  align-items:center;justify-content:center;
+}
+.modal.open{display:flex;}
+.modal img{max-width:90vw;max-height:85vh;border-radius:8px;}
+.modal-close{
+  position:fixed;top:20px;right:24px;
+  background:none;border:none;color:var(--text2);
+  font-size:26px;cursor:pointer;z-index:3001;
+}
+
+hr.sep{border:none;border-top:0.5px solid var(--border);margin:18px 0;}
+
+/* ── Stagger animations on load ── */
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.header{animation:riseIn 0.8s ease both;}
+.countdown-wrap{animation:riseIn 0.8s 0.1s ease both;}
+.view-toggle{animation:riseIn 0.8s 0.15s ease both;}
+.panel.active > *{animation:riseIn 0.5s ease both;}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<canvas id="starfield"></canvas>
+
+<div id="sync-status">connecting…</div>
+
+<div class="wrap">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-eyebrow">a little corner of us</div>
+    <div class="header-names">Zach <span class="amp">&</span> Mia</div>
+    <div class="header-rule">
+      <div class="header-rule-line"></div>
+      <div class="header-rule-diamond"></div>
+      <div class="header-rule-line"></div>
+    </div>
+  </div>
+
+  <!-- ── Countdown ── -->
+  <div class="countdown-wrap">
+    <div class="section-label">next show</div>
+    <div class="countdown-card">
+      <div>
+        <div class="countdown-event-name">Oct 23, 2026</div>
+        <div class="countdown-event-date">concert countdown</div>
+        <div class="countdown-event-emojis">🎸🖤🌙</div>
+      </div>
+      <div class="countdown-units">
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-days">--</span>
+          <span class="countdown-lbl">days</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-hrs">--</span>
+          <span class="countdown-lbl">hours</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-min">--</span>
+          <span class="countdown-lbl">min</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-sec">--</span>
+          <span class="countdown-lbl">sec</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── View toggle ── -->
+  <div class="view-toggle">
+    <button class="view-btn" id="btn-mia" onclick="switchView('mia')">
+      For Mia <span class="notif" id="mia-notif" style="display:none"></span>
+    </button>
+    <button class="view-btn" id="btn-zach" onclick="unlockAdmin()">Zach's Area</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ZACH'S PANEL
+  ══════════════════════════════════════ -->
+  <div class="panel" id="panel-zach">
+
+    <div class="grid2">
+      <!-- Notes -->
+      <div class="card">
+        <div class="section-label">notes for mia</div>
+        <div class="note-list" id="note-list"></div>
+        <div class="note-input-area">
+          <div class="note-type-row" id="note-type-row">
+            <button class="note-type-chip active" data-type="note" onclick="selectNoteType('note',this)">note</button>
+            <button class="note-type-chip" data-type="letter" onclick="selectNoteType('letter',this)">love letter</button>
+            <button class="note-type-chip" data-type="money" onclick="selectNoteType('money',this)">money</button>
+          </div>
+
+          <!-- Regular note form -->
+          <div id="form-note">
+            <textarea id="note-input" rows="3" placeholder="Write something sweet…"></textarea>
+            <button class="btn btn-rose" onclick="addNote()">+ send note</button>
+          </div>
+
+          <!-- Love letter form -->
+          <div id="form-letter" style="display:none">
+            <div class="template-chips">
+              <button class="template-chip" onclick="setTemplate('missing')">missing you</button>
+              <button class="template-chip" onclick="setTemplate('grateful')">grateful</button>
+              <button class="template-chip" onclick="setTemplate('sorry')">apology</button>
+              <button class="template-chip" onclick="setTemplate('future')">our future</button>
+            </div>
+            <div class="letter-wrap">
+              <div class="letter-salutation">My dearest Mia,</div>
+              <textarea id="letter-input" rows="5" placeholder="Write from the heart…" style="background:transparent;border:none;padding:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;line-height:1.8;color:var(--text);"></textarea>
+              <div class="letter-sign">Always yours, Zach 🖤</div>
+            </div>
+            <button class="btn btn-rose" onclick="addLetter()">+ send letter</button>
+          </div>
+
+          <!-- Money form -->
+          <div id="form-money" style="display:none">
+            <div class="money-methods" id="money-methods-send">
+              <div class="money-method active" id="mm-venmo" onclick="selectMethod('venmo')">Venmo</div>
+              <div class="money-method" id="mm-cashapp" onclick="selectMethod('cashapp')">Cash App</div>
+              <div class="money-method" id="mm-zelle" onclick="selectMethod('zelle')">Zelle</div>
+              <div class="money-method" id="mm-paypal" onclick="selectMethod('paypal')">PayPal</div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input type="number" id="money-amount" placeholder="Amount ($)" min="1" style="flex:1;margin:0;">
+              <input type="text" id="money-note-input" placeholder="Note (e.g. treat yourself)" style="flex:2;margin:0;">
+            </div>
+            <div id="money-link-area"></div>
+            <button class="btn btn-rose" style="margin-top:8px;" onclick="addMoneyNote()">+ post to her board</button>
+            <div style="margin-top:8px;font-size:11px;color:var(--text3);line-height:1.6;">Open the app above to actually send — then log it here so she sees it.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GIFs -->
+      <div class="card">
+        <div class="section-label">gifs & stickers</div>
+        <div class="gif-grid" id="gif-grid">
+          <div class="gif-add" onclick="document.getElementById('gif-url-input').focus()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+            add gif
+          </div>
+        </div>
+        <div class="gif-input-row">
+          <input type="text" id="gif-url-input" placeholder="Paste GIF or image URL…">
+          <button class="btn" onclick="addGif()">add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rotating photo -->
+    <div class="card-full">
+      <div class="section-label">our memories</div>
+      <div id="photo-display"></div>
+      <div class="photo-input-row">
+        <input type="text" id="photo-url-input" placeholder="Paste photo URL (Imgur, Discord, Google Photos…)">
+        <button class="btn btn-rose" onclick="addPhoto()">+ add</button>
+      </div>
+      <div class="photo-note">Photos rotate automatically every 5 seconds. Click nav arrows to browse manually.</div>
+    </div>
+
+    <!-- Playlist + Money -->
+    <div class="grid2">
+      <div class="card">
+        <div class="section-label">our playlist</div>
+        <div class="playlist-list" id="playlist"></div>
+        <div class="music-input-row">
+          <input type="text" id="song-name" placeholder="Song name">
+          <input type="text" id="song-artist" placeholder="Artist">
+        </div>
+        <div class="music-input-row" style="margin-top:6px;">
+          <input type="text" id="song-link" placeholder="Spotify / Apple Music link">
+          <button class="btn btn-rose" onclick="addSong()">+ add</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">quick send</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px;">Open the app and send — then log it in the <em style="color:var(--rose);">Money</em> note type so Mia sees a card on her board.</p>
+        <div class="money-methods">
+          <div class="money-method active" id="mm2-venmo" onclick="selectMethod2('venmo')">Venmo</div>
+          <div class="money-method" id="mm2-cashapp" onclick="selectMethod2('cashapp')">Cash App</div>
+          <div class="money-method" id="mm2-zelle" onclick="selectMethod2('zelle')">Zelle</div>
+          <div class="money-method" id="mm2-paypal" onclick="selectMethod2('paypal')">PayPal</div>
+        </div>
+        <div id="money-link-area-2"></div>
+        <hr class="sep">
+        <div style="font-size:11px;color:var(--text3);line-height:1.6;">Links open the payment app — just enter Mia's handle and amount.</div>
+      </div>
+    </div>
+
+  </div><!-- /panel-zach -->
+
+
+  <!-- ══════════════════════════════════════
+       MIA'S PANEL
+  ══════════════════════════════════════ -->
+  <div class="panel active" id="panel-mia">
+
+    <div class="mia-hero">
+      <div class="mia-hero-title">for <span>Mia</span> 🖤</div>
+      <div class="mia-hero-sub">everything Zach left for you</div>
+    </div>
+
+    <!-- Presents grid (notes/letters/money only) -->
+    <div class="card-full">
+      <div class="section-label">messages from zach</div>
+      <div class="presents-grid" id="presents-grid">
+        <div style="color:var(--text3);font-size:13px;padding:8px 0;grid-column:1/-1;">No messages yet — check back soon.</div>
+      </div>
+    </div>
+
+    <!-- GIFs & stickers (plain grid, no presents) -->
+    <div class="card-full">
+      <div class="section-label">gifs & stickers</div>
+      <div class="gif-grid" id="mia-gif-view" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))"></div>
+    </div>
+
+    <!-- Rotating memory photo -->
+    <div class="card-full">
+      <div class="section-label">our memories</div>
+      <div id="mia-photo-display"></div>
+    </div>
+
+    <!-- Playlist -->
+    <div class="card-full">
+      <div class="section-label">our playlist</div>
+      <div class="playlist-list" id="mia-playlist-view"></div>
+    </div>
+
+  </div><!-- /panel-mia -->
+
+</div><!-- /wrap -->
+
+<!-- ── Message reveal modal ── -->
+<div class="msg-modal" id="msg-modal">
+  <div class="msg-modal-card">
+    <button class="msg-modal-close" onclick="closeMsgModal()">✕</button>
+    <div class="msg-modal-type" id="modal-type"></div>
+    <div id="modal-content"></div>
+    <div class="msg-modal-time" id="modal-time"></div>
+  </div>
+</div>
+
+<!-- ── Image lightbox ── -->
+<div class="modal" id="img-modal" onclick="closeModal()">
+  <button class="modal-close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="" alt="">
+</div>
+
+<script>
+// ── Starfield ──────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('starfield');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  const stars=Array.from({length:120},()=>({
+    x:Math.random()*c.width,y:Math.random()*c.height,
+    r:Math.random()*1.2+0.2,
+    a:Math.random(),da:(Math.random()-0.5)*0.005,
+  }));
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      s.a=Math.max(0.05,Math.min(0.7,s.a+s.da));
+      if(s.a<=0.05||s.a>=0.7)s.da*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${s.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<script type="module">
+import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc,
+         onSnapshot, setDoc }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── Firebase ───────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyByGgOvxNnpNZGc80hqsWhLTEPxGIpFFcM",
+  authDomain:        "zach-and-mia.firebaseapp.com",
+  projectId:         "zach-and-mia",
+  storageBucket:     "zach-and-mia.firebasestorage.app",
+  messagingSenderId: "518614350856",
+  appId:             "1:518614350856:web:3b46c5f09f2fcbe6ad25bd",
+  measurementId:     "G-TNYKH547TJ"
+};
+const app    = initializeApp(firebaseConfig);
+const db     = getFirestore(app);
+const docRef = doc(db, "siteData", "shared");
+const syncEl = document.getElementById("sync-status");
+
+// ── State ──────────────────────────────────────────────────────
+let notes   = [];
+let gifs    = [];
+let photos  = [];
+let songs   = [];
+let hasNew  = false;
+let photoIdx = 0;
+let photoTimer = null;
+let miaPhotoIdx = 0;
+let miaPhotoTimer = null;
+
+// ── Helpers ────────────────────────────────────────────────────
+function esc(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+async function save(field,value){
+  syncEl.style.opacity='1';syncEl.textContent='saving…';
+  try{ await setDoc(docRef,{[field]:value},{merge:true}); }
+  catch(e){ syncEl.textContent='⚠ save failed';console.error(e); }
+}
+
+// ── Live sync ──────────────────────────────────────────────────
+onSnapshot(docRef,(snap)=>{
+  syncEl.textContent='✓ synced';
+  setTimeout(()=>{syncEl.style.opacity='0';},2000);
+  if(!snap.exists())return;
+  const d=snap.data();
+  notes  = d.notes  ||[];
+  gifs   = d.gifs   ||[];
+  photos = d.photos ||[];
+  songs  = d.songs  ||[];
+  hasNew = d.hasNew ||false;
+  renderNotes(); renderGifs(); renderPhotos(); renderPlaylist();
+  document.getElementById('mia-notif').style.display=hasNew?'inline-block':'none';
+  if(document.getElementById('panel-mia').classList.contains('active')){
+    renderMiaView();
+  }
+},(err)=>{
+  syncEl.textContent='⚠ offline';console.error(err);
+});
+
+// ══════════════════════════════════════════════
+// NOTES
+// ══════════════════════════════════════════════
+let currentNoteType = 'note';
+const templates = {
+  missing: `Every time I look at my phone I hope it's you. The distance is hard but knowing you exist makes it all worth it. I miss the small things — your laugh, the way you say my name.`,
+  grateful:`I don't say it enough but I am so grateful you're in my life. You make me want to be better, love harder, and show up fully. Thank you for choosing me every day, even when it's hard.`,
+  sorry:   `I'm sorry for the way things went. You deserve patience and I fell short. I'm not going to make excuses — I just want you to know I hear you, I love you, and I'm working on it.`,
+  future:  `I think about our future a lot. The places we'll go, the lazy mornings, the concerts, the ordinary Tuesday nights. I want all of it with you. We're going to be so okay.`
+};
+
+window.selectNoteType = function(type, el){
+  currentNoteType = type;
+  document.querySelectorAll('.note-type-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('form-note').style.display    = type==='note'   ?'block':'none';
+  document.getElementById('form-letter').style.display  = type==='letter' ?'block':'none';
+  document.getElementById('form-money').style.display   = type==='money'  ?'block':'none';
+  if(type==='money') renderMoneyLinks();
+};
+
+window.setTemplate = function(key){
+  document.getElementById('letter-input').value = templates[key];
+};
+
+window.addNote = async function(){
+  const val = document.getElementById('note-input').value.trim();
+  if(!val)return;
+  const now = new Date();
+  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+
+               ' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('note-input').value='';
+  const updated=[...notes,{type:'note',text:val,time}];
+  await setDoc(docRef,{notes:updated,hasNew:true},{merge:true});
+};
+
+window.addLetter = async function(){
+  const val = document.getElementById('letter-input').value.trim();
+  if(!val)return;
+  const now = new Date();
+  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+
+               ' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('letter-input').value='';
+  const updated=[...notes,{type:'letter',text:val,time}];
+  await setDoc(docRef,{notes:updated,hasNew:true},{merge:true});
+};
+
+window.addMoneyNote = async function(){
+  const amt  = document.getElementById('money-amount').value.trim();
+  const note = document.getElementById('money-note-input').value.trim();
+  if(!amt)return;
+  const now = new Date();
+  const time = now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+
+               ' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('money-amount').value='';
+  document.getElementById('money-note-input').value='';
+  const updated=[...notes,{type:'money',amount:parseFloat(amt).toFixed(2),platform:moneyMethod,note,time}];
+  await setDoc(docRef,{notes:updated,hasNew:true},{merge:true});
+};
+
+window.delNote = async function(i){
+  await save('notes',notes.filter((_,idx)=>idx!==i));
+};
+
+function renderNotes(){
+  const el=document.getElementById('note-list');
+  if(!el)return;
+  if(!notes.length){
+    el.innerHTML='<div class="note-empty">Your messages will appear here.</div>';return;
+  }
+  const typeLabel={note:'note',letter:'love letter',money:'money sent',gif:'gif'};
+  el.innerHTML=notes.map((n,i)=>`
+    <div class="note-item">
+      <button class="note-del" onclick="delNote(${i})">✕</button>
+      <div class="note-tag">${typeLabel[n.type]||'note'}</div>
+      <div>${n.type==='money'
+        ? `$${esc(n.amount)} via ${esc(n.platform)}${n.note?' — '+esc(n.note):''}`
+        : esc(n.text).substring(0,80)+(n.text&&n.text.length>80?'…':'')
+      }</div>
+      <div class="note-time">${esc(n.time)}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// GIFs
+// ══════════════════════════════════════════════
+window.addGif = async function(){
+  const url=document.getElementById('gif-url-input').value.trim();
+  if(!url)return;
+  document.getElementById('gif-url-input').value='';
+  await save('gifs',[...gifs,url]);
+};
+window.delGif = async function(i){
+  await save('gifs',gifs.filter((_,idx)=>idx!==i));
+};
+function renderGifs(){
+  const el=document.getElementById('gif-grid');
+  if(!el)return;
+  el.innerHTML=gifs.map((g,i)=>`
+    <div class="gif-item">
+      <img src="${esc(g)}" alt="gif" loading="lazy">
+      <button class="gif-del" onclick="delGif(${i})">✕</button>
+    </div>`).join('')+
+  `<div class="gif-add" onclick="document.getElementById('gif-url-input').focus()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+    add gif
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// PHOTOS (rotating)
+// ══════════════════════════════════════════════
+window.addPhoto = async function(){
+  const url=document.getElementById('photo-url-input').value.trim();
+  if(!url)return;
+  document.getElementById('photo-url-input').value='';
+  await save('photos',[...photos,url]);
+};
+window.delPhotoByIdx = async function(i){
+  await save('photos',photos.filter((_,idx)=>idx!==i));
+};
+
+function buildRotatingDisplay(containerId, idxVar, timerVar, isAdmin){
+  const container = document.getElementById(containerId);
+  if(!container)return;
+  if(!photos.length){
+    container.innerHTML=`<div class="photo-stage-empty">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>No photos yet</span>
+    </div>`;
+    return;
+  }
+
+  // clamp index
+  if(idxVar==='photoIdx') photoIdx=Math.min(photoIdx,photos.length-1);
+  else miaPhotoIdx=Math.min(miaPhotoIdx,photos.length-1);
+  const idx = idxVar==='photoIdx'?photoIdx:miaPhotoIdx;
+
+  const dots = photos.map((_,i)=>
+    `<div class="photo-dot ${i===idx?'active':''}" onclick="goToPhoto('${idxVar}','${containerId}',${i})"></div>`
+  ).join('');
+
+  const thumbs = photos.map((p,i)=>
+    `<img class="photo-thumb ${i===idx?'active':''}" src="${esc(p)}" alt="memory" onclick="goToPhoto('${idxVar}','${containerId}',${i})" loading="lazy">`
+  ).join('');
+
+  const delBtn = isAdmin
+    ? `<button class="photo-nav-btn" onclick="delPhotoByIdx(${idx})" style="color:var(--rose);border-color:rgba(196,122,138,0.3);">remove</button>`
+    : '';
+
+  container.innerHTML=`
+    <div class="photo-stage" id="${containerId}-stage">
+      ${photos.map((p,i)=>`<img src="${esc(p)}" alt="memory" class="${i===idx?'visible':''}" loading="lazy">`).join('')}
+    </div>
+    <div class="photo-controls">
+      <div class="photo-dots">${dots}</div>
+      <span class="photo-counter">${idx+1} / ${photos.length}</span>
+      <div class="photo-nav-btns">
+        ${delBtn}
+        <button class="photo-nav-btn" onclick="prevPhoto('${idxVar}','${containerId}')">←</button>
+        <button class="photo-nav-btn" onclick="nextPhoto('${idxVar}','${containerId}')">→</button>
+      </div>
+    </div>
+    <div class="photo-thumb-row">${thumbs}</div>`;
+}
+
+window.goToPhoto = function(idxVar, containerId, i){
+  if(idxVar==='photoIdx') photoIdx=i;
+  else miaPhotoIdx=i;
+  buildRotatingDisplay(containerId,idxVar,null,containerId==='photo-display');
+  resetPhotoTimer(idxVar,containerId);
+};
+window.nextPhoto = function(idxVar,containerId){
+  if(idxVar==='photoIdx') photoIdx=(photoIdx+1)%photos.length;
+  else miaPhotoIdx=(miaPhotoIdx+1)%photos.length;
+  buildRotatingDisplay(containerId,idxVar,null,containerId==='photo-display');
+  resetPhotoTimer(idxVar,containerId);
+};
+window.prevPhoto = function(idxVar,containerId){
+  if(idxVar==='photoIdx') photoIdx=(photoIdx-1+photos.length)%photos.length;
+  else miaPhotoIdx=(miaPhotoIdx-1+photos.length)%photos.length;
+  buildRotatingDisplay(containerId,idxVar,null,containerId==='photo-display');
+  resetPhotoTimer(idxVar,containerId);
+};
+function resetPhotoTimer(idxVar,containerId){
+  if(idxVar==='photoIdx'){
+    clearInterval(photoTimer);
+    photoTimer=setInterval(()=>{ if(photos.length>1){ photoIdx=(photoIdx+1)%photos.length; buildRotatingDisplay('photo-display','photoIdx',null,true); }},5000);
+  } else {
+    clearInterval(miaPhotoTimer);
+    miaPhotoTimer=setInterval(()=>{ if(photos.length>1){ miaPhotoIdx=(miaPhotoIdx+1)%photos.length; buildRotatingDisplay('mia-photo-display','miaPhotoIdx',null,false); }},5000);
+  }
+}
+
+function renderPhotos(){
+  buildRotatingDisplay('photo-display','photoIdx',null,true);
+  clearInterval(photoTimer);
+  if(photos.length>1){
+    photoTimer=setInterval(()=>{ photoIdx=(photoIdx+1)%photos.length; buildRotatingDisplay('photo-display','photoIdx',null,true); },5000);
+  }
+  // also refresh mia if needed
+  if(document.getElementById('panel-mia').classList.contains('active')){
+    buildRotatingDisplay('mia-photo-display','miaPhotoIdx',null,false);
+    clearInterval(miaPhotoTimer);
+    if(photos.length>1){
+      miaPhotoTimer=setInterval(()=>{ miaPhotoIdx=(miaPhotoIdx+1)%photos.length; buildRotatingDisplay('mia-photo-display','miaPhotoIdx',null,false); },5000);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════
+// PLAYLIST
+// ══════════════════════════════════════════════
+window.addSong = async function(){
+  const name   = document.getElementById('song-name').value.trim();
+  const artist = document.getElementById('song-artist').value.trim();
+  const link   = document.getElementById('song-link').value.trim();
+  if(!name)return;
+  ['song-name','song-artist','song-link'].forEach(id=>document.getElementById(id).value='');
+  await save('songs',[...songs,{name,artist,link}]);
+};
+window.delSong = async function(i){
+  await save('songs',songs.filter((_,idx)=>idx!==i));
+};
+function renderPlaylist(){
+  const el=document.getElementById('playlist');
+  if(!el)return;
+  if(!songs.length){
+    el.innerHTML='<div class="note-empty">Add songs you want to share.</div>';return;
+  }
+  el.innerHTML=songs.map((s,i)=>`
+    <div class="playlist-item">
+      <span class="playlist-num">${i+1}</span>
+      <div class="playlist-info">
+        <div class="playlist-name">${esc(s.name)}</div>
+        ${s.artist?`<div class="playlist-artist">${esc(s.artist)}</div>`:''}
+      </div>
+      ${s.link?`<a class="playlist-link" href="${esc(s.link)}" target="_blank">listen</a>`:''}
+      <button class="playlist-del" onclick="delSong(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// MONEY / PAYMENT LINKS
+// ══════════════════════════════════════════════
+let moneyMethod='venmo';
+let moneyMethod2='venmo';
+const moneyData={
+  venmo:  {label:'Open Venmo',  url:'venmo://'},
+  cashapp:{label:'Open Cash App',url:'https://cash.app/$'},
+  zelle:  {label:'Open Zelle',  url:'https://enroll.zellepay.com/'},
+  paypal: {label:'Open PayPal', url:'https://paypal.me/'}
+};
+window.selectMethod = function(m){
+  moneyMethod=m;
+  document.querySelectorAll('#money-methods-send .money-method').forEach(el=>el.classList.remove('active'));
+  document.getElementById('mm-'+m).classList.add('active');
+  renderMoneyLinks();
+};
+function renderMoneyLinks(){
+  const d=moneyData[moneyMethod];
+  const el=document.getElementById('money-link-area');
+  if(el) el.innerHTML=`<a class="money-link" href="${d.url}" target="_blank">${d.label}</a>`;
+}
+window.selectMethod2 = function(m){
+  moneyMethod2=m;
+  ['venmo','cashapp','zelle','paypal'].forEach(k=>{
+    const el=document.getElementById('mm2-'+k);
+    if(el) el.classList.toggle('active',k===m);
+  });
+  renderMoneyLinks2();
+};
+function renderMoneyLinks2(){
+  const d=moneyData[moneyMethod2];
+  const el=document.getElementById('money-link-area-2');
+  if(el) el.innerHTML=`<a class="money-link" href="${d.url}" target="_blank">${d.label}</a>`;
+}
+
+// ══════════════════════════════════════════════
+// MIA'S VIEW — PRESENT CARDS
+// ══════════════════════════════════════════════
+const presentIcons={
+  note:'💌',letter:'💝',money:'💸',gif:'✨'
+};
+const presentLabels={
+  note:'a note',letter:'a letter',money:'a gift',gif:'something fun'
+};
+
+function renderMiaView(){
+  // Presents — notes, letters, money ONLY (no gifs)
+  const grid=document.getElementById('presents-grid');
+  if(grid){
+    if(!notes.length){
+      grid.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0;grid-column:1/-1;">No messages yet — check back soon.</div>';
+    } else {
+      // store just notes for modal lookup
+      window._miaItems = notes.map((n,i)=>({...n, _idx:i}));
+      grid.innerHTML=notes.map((item,i)=>`
+        <div class="present-wrap">
+          <button class="present-btn" id="present-${i}" onclick="openPresent(${i})">
+            <span class="present-icon">${presentIcons[item.type]||'💌'}</span>
+            <span class="present-label">${presentLabels[item.type]||'a message'}</span>
+            <div class="present-ribbon"></div>
+          </button>
+        </div>`).join('');
+    }
+  }
+
+  // GIFs — plain grid, separate
+  const gifEl=document.getElementById('mia-gif-view');
+  if(gifEl){
+    gifEl.innerHTML=gifs.length
+      ? gifs.map(g=>`<div class="gif-item"><img src="${esc(g)}" alt="gif" loading="lazy"></div>`).join('')
+      : '<div style="color:var(--text3);font-size:13px;">Nothing here yet.</div>';
+  }
+
+  // Photo
+  buildRotatingDisplay('mia-photo-display','miaPhotoIdx',null,false);
+  clearInterval(miaPhotoTimer);
+  if(photos.length>1){
+    miaPhotoTimer=setInterval(()=>{ miaPhotoIdx=(miaPhotoIdx+1)%photos.length; buildRotatingDisplay('mia-photo-display','miaPhotoIdx',null,false); },5000);
+  }
+
+  // Playlist
+  const plEl=document.getElementById('mia-playlist-view');
+  if(plEl){
+    plEl.innerHTML=songs.length
+      ? songs.map((s,i)=>`
+          <div class="mia-playlist-item">
+            <span class="playlist-num">${i+1}</span>
+            <div class="playlist-info">
+              <div class="playlist-name">${esc(s.name)}</div>
+              ${s.artist?`<div class="playlist-artist">${esc(s.artist)}</div>`:''}
+            </div>
+            ${s.link?`<a class="playlist-link" href="${esc(s.link)}" target="_blank">listen</a>`:''}
+          </div>`).join('')
+      : '<div class="note-empty">Nothing added yet.</div>';
+  }
+}
+
+// ══════════════════════════════════════════════
+// PRESENT REVEAL
+// ══════════════════════════════════════════════
+window.openPresent = function(i){
+  const item = notes[i];
+  if(!item){ console.warn('No item at index',i,notes); return; }
+
+  // Mark opened visually
+  const btn=document.getElementById('present-'+i);
+  if(btn) btn.classList.add('present-opened');
+
+  // Build modal content
+  const typeLabels={note:'a note from zach 🖤',letter:'a love letter 💝',money:'he sent you something 💸'};
+  document.getElementById('modal-type').textContent = typeLabels[item.type]||'from zach 🖤';
+  document.getElementById('modal-time').textContent = item.time||'';
+
+  let html='';
+  if(item.type==='note'){
+    html=`<div class="msg-modal-body">${esc(item.text).replace(/\n/g,'<br>')}</div>`;
+  } else if(item.type==='letter'){
+    html=`
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--text2);margin-bottom:12px;">My dearest Mia,</div>
+      <div class="msg-modal-body">${esc(item.text).replace(/\n/g,'<br>')}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--text2);margin-top:16px;">Always yours, Zach 🖤</div>`;
+  } else if(item.type==='money'){
+    html=`
+      <div class="msg-modal-money-amount">$${esc(item.amount)}</div>
+      <div class="msg-modal-money-via">via ${esc(item.platform)}</div>
+      ${item.note?`<div class="msg-modal-body" style="margin-top:14px;font-size:16px;">${esc(item.note)}</div>`:''}`;
+  }
+
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('msg-modal').classList.add('open');
+};
+
+window.closeMsgModal = function(){
+  document.getElementById('msg-modal').classList.remove('open');
+};
+
+// Close on backdrop click
+document.getElementById('msg-modal').addEventListener('click',function(e){
+  if(e.target===this) closeMsgModal();
+});
+
+// ══════════════════════════════════════════════
+// VIEW SWITCHING
+// ══════════════════════════════════════════════
+window.switchView = async function(v){
+  document.getElementById('panel-zach').classList.toggle('active',v==='zach');
+  document.getElementById('panel-mia').classList.toggle('active',v==='mia');
+  document.getElementById('btn-zach').classList.toggle('active',v==='zach');
+  document.getElementById('btn-mia').classList.toggle('active',v==='mia');
+  if(v==='mia'){
+    renderMiaView();
+    await setDoc(docRef,{hasNew:false},{merge:true});
+    document.getElementById('mia-notif').style.display='none';
+  }
+};
+
+window.unlockAdmin = function(){
+  const pw=prompt('Password');
+  if(pw==='FEET'){ switchView('zach'); }
+  else { alert('Incorrect password'); }
+};
+
+// ══════════════════════════════════════════════
+// COUNTDOWN
+// ══════════════════════════════════════════════
+function updateCountdown(){
+  const target=new Date('2026-10-23T19:00:00');
+  const diff=target-new Date();
+  if(diff<0){
+    ['cd-days','cd-hrs','cd-min','cd-sec'].forEach(id=>document.getElementById(id).textContent='0');
+    return;
+  }
+  document.getElementById('cd-days').textContent=Math.floor(diff/86400000);
+  document.getElementById('cd-hrs').textContent=String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+  document.getElementById('cd-min').textContent=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+  document.getElementById('cd-sec').textContent=String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+}
+
+// ── Lightbox ───────────────────────────────────────────────────
+window.closeModal = function(){
+  document.getElementById('img-modal').classList.remove('open');
+};
+
+// ── Boot ───────────────────────────────────────────────────────
+renderMoneyLinks();
+renderMoneyLinks2();
+updateCountdown();
+setInterval(updateCountdown,1000);
+switchView('mia');
+</script>
+</body>
+</html>
