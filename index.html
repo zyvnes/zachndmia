@@ -853,14 +853,74 @@ hr.sep{border:none;border-top:0.5px solid var(--border);margin:18px 0;}
   margin-right:6px;vertical-align:middle;
   animation:pulse 2s infinite;
 }
-/* ── V1.7 label ── */
-.version-label{
+/* ── GitHub update feed ── */
+.gh-feed{
   position:fixed;top:10px;left:12px;
+  z-index:200;
+  display:flex;align-items:center;gap:7px;
   font-family:'Lora',serif;font-size:9px;
-  letter-spacing:0.18em;text-transform:uppercase;
-  color:var(--text3);z-index:200;
-  opacity:0.55;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text3);
+  cursor:default;
+  opacity:0.75;
+  transition:opacity 0.2s;
 }
+.gh-feed:hover{ opacity:1; }
+.gh-feed-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--text3);
+  flex-shrink:0;
+  transition:background 0.4s,box-shadow 0.4s;
+}
+.gh-feed-dot.live{
+  background:#5a9e6f;
+  box-shadow:0 0 0 0 rgba(90,158,111,0.6);
+  animation:gh-pulse 2s ease-out infinite;
+}
+.gh-feed-dot.new{
+  background:var(--rose2);
+  box-shadow:0 0 8px rgba(232,180,192,0.7);
+}
+@keyframes gh-pulse{
+  0%  { box-shadow:0 0 0 0 rgba(90,158,111,0.6); }
+  70% { box-shadow:0 0 0 6px rgba(90,158,111,0); }
+  100%{ box-shadow:0 0 0 0 rgba(90,158,111,0); }
+}
+.gh-feed-text{ transition:color 0.3s; }
+.gh-feed-count{
+  background:rgba(184,149,90,0.15);
+  border:0.5px solid rgba(184,149,90,0.35);
+  color:var(--gold);
+  border-radius:20px;
+  padding:1px 7px;
+  font-size:8px;
+  letter-spacing:0.1em;
+  display:none;
+}
+.gh-feed-count.visible{ display:inline-block; }
+.gh-feed-notify{
+  position:fixed;top:34px;left:12px;
+  z-index:201;
+  background:var(--bg3);
+  border:0.5px solid rgba(184,149,90,0.35);
+  border-radius:8px;
+  padding:8px 14px;
+  font-family:'Lora',serif;font-size:10px;
+  color:var(--text2);letter-spacing:0.06em;
+  max-width:210px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  opacity:0;pointer-events:none;
+  transform:translateY(-4px);
+  transition:opacity 0.3s,transform 0.3s;
+}
+.gh-feed-notify.show{
+  opacity:1;pointer-events:auto;transform:translateY(0);
+}
+.gh-feed-notify-title{
+  color:var(--gold);font-size:9px;letter-spacing:0.18em;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.gh-feed-notify-msg{ color:var(--text2);line-height:1.5; }
 
 /* ── Sweet banner ── */
 .sweet-banner{
@@ -1333,7 +1393,17 @@ hr.sep{border:none;border-top:0.5px solid var(--border);margin:18px 0;}
 
 <div id="sync-status">connecting…</div>
 
-<div class="version-label">v1.7</div>
+
+<div class="gh-feed" id="gh-feed" onclick="ghToggleNotify()">
+  <div class="gh-feed-dot" id="gh-dot"></div>
+  <span class="gh-feed-text" id="gh-text">connecting…</span>
+  <span class="gh-feed-count" id="gh-count"></span>
+</div>
+<div class="gh-feed-notify" id="gh-notify">
+  <div class="gh-feed-notify-title">latest push</div>
+  <div class="gh-feed-notify-msg" id="gh-notify-msg">—</div>
+</div>
+
 
 <div class="wrap">
 
@@ -3272,7 +3342,105 @@ function spawnParticles(canvas) {
 }
 
 
-function startClocks(){
+
+// ══════════════════════════════════════════════
+// GITHUB LIVE UPDATE FEED
+// ══════════════════════════════════════════════
+(function(){
+  const REPO = 'zyvnes/zachndmia';
+  const API  = `https://api.github.com/repos/${REPO}/commits?per_page=5`;
+  const POLL = 60000; // poll every 60s
+
+  let knownSha = null;
+  let pushCount = 0;
+  let notifyOpen = false;
+  let latestMsg = '—';
+
+  const dot     = document.getElementById('gh-dot');
+  const text    = document.getElementById('gh-text');
+  const countEl = document.getElementById('gh-count');
+  const notify  = document.getElementById('gh-notify');
+  const notifyMsg = document.getElementById('gh-notify-msg');
+
+  function setConnecting(){ if(text) text.textContent='connecting…'; }
+  function setLive(msg, isNew){
+    if(!dot||!text) return;
+    dot.className = 'gh-feed-dot ' + (isNew ? 'new' : 'live');
+    text.textContent = 'website update pushed';
+    text.style.color = isNew ? 'var(--rose2)' : '';
+    if(isNew) setTimeout(()=>{ dot.className='gh-feed-dot live'; text.style.color=''; }, 3000);
+    latestMsg = msg;
+    if(notifyMsg) notifyMsg.textContent = msg;
+  }
+  function setCount(n){
+    if(!countEl) return;
+    countEl.textContent = `×${n}`;
+    countEl.classList.toggle('visible', n > 0);
+  }
+
+  async function poll(){
+    try {
+      const r = await fetch(API, { headers:{ 'Accept':'application/vnd.github.v3+json' } });
+      if(!r.ok) throw new Error(r.status);
+      const commits = await r.json();
+      if(!commits.length) return;
+      const latest = commits[0];
+      const sha = latest.sha;
+      const rawMsg = latest.commit?.message || 'update pushed';
+      const shortMsg = rawMsg.split('\n')[0].slice(0, 60);
+      const author = latest.commit?.author?.name || 'zach';
+      const display = `${shortMsg} — ${author}`;
+
+      if(knownSha === null){
+        // first load
+        knownSha = sha;
+        setLive(display, false);
+        setCount(0);
+      } else if(sha !== knownSha){
+        // new commit!
+        pushCount++;
+        knownSha = sha;
+        setLive(display, true);
+        setCount(pushCount);
+        // auto-show notify for 5s
+        showNotify();
+        setTimeout(hideNotify, 5000);
+      }
+    } catch(e){
+      if(dot) dot.className = 'gh-feed-dot';
+      if(text) text.textContent = 'update feed';
+    }
+  }
+
+  function showNotify(){
+    if(!notify) return;
+    if(notifyMsg) notifyMsg.textContent = latestMsg;
+    notify.classList.add('show');
+    notifyOpen = true;
+  }
+  function hideNotify(){
+    if(!notify) return;
+    notify.classList.remove('show');
+    notifyOpen = false;
+  }
+
+  window.ghToggleNotify = function(){
+    if(notifyOpen) hideNotify(); else showNotify();
+  };
+
+  // Close notify on outside click
+  document.addEventListener('click', e => {
+    const feed = document.getElementById('gh-feed');
+    if(notifyOpen && feed && !feed.contains(e.target) && !notify.contains(e.target)){
+      hideNotify();
+    }
+  });
+
+  setConnecting();
+  poll();
+  setInterval(poll, POLL);
+})();
+
   function tick(){
     const now=new Date();
     function fmt(tz,hId,mId,sId,apId,dateId){
